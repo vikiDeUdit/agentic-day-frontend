@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import './second.css';
+import './second.scss';
+import Header from '../components/header';
 
 type SpeechRecognitionType = typeof window.SpeechRecognition | typeof window.webkitSpeechRecognition;
 type RecognitionInstance = InstanceType<NonNullable<SpeechRecognitionType>> | null;
@@ -48,9 +49,14 @@ export default function SecondPage() {
   const [listening, setListening] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<RecognitionInstance>(null);
-
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   // Simulate backend fetch for AI data (replace with real API call)
   useEffect(() => {
+    // Simulate fetching AI data
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+  useEffect(() => {
+    // Scroll to bottom when messages change
     setTimeout(() => {
       setMessages(['', '']);
     }, 1000);
@@ -100,27 +106,30 @@ export default function SecondPage() {
   };
 
   return (
-    <div className="kb-root">
-      <header className="kb-header">
+    <div className="kb-root-two">
+      {/* <header className="kb-header">
         <span className="kb-title">KrishiBandhu</span>
         <span className="kb-user-icon">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M16 16a4 4 0 0 0-8 0"/><rect x="2" y="2" width="20" height="20" rx="5" fill="#fff3"/></svg>
         </span>
-      </header>
+      </header> */}
+      <Header/>
       <main className="kb-chat-main">
         {/* Two empty cards for AI data */}
-        <div className="kb-chat-bubble kb-chat-placeholder">
+        {/* <div className="kb-chat-bubble kb-chat-placeholder"> */}
           {/* Placeholder for AI data 1 */}
-        </div>
-        <div className="kb-chat-bubble kb-chat-placeholder">
+        {/* </div> */}
+        {/* <div className="kb-chat-bubble kb-chat-placeholder"> */}
           {/* Placeholder for AI data 2 */}
-        </div>
+        {/* </div> */}
         {fileName && (
           <div className="kb-chat-bubble kb-chat-file">📎 {fileName}</div>
         )}
-        {messages.slice(2).map((msg, idx) => (
-          <div className="kb-chat-bubble" key={idx + 2}>{msg}</div>
-        ))}
+        <div className='kb-chat-content'>
+          {messages.slice(2).map((msg, idx) => (
+            <div className="kb-chat-bubble kb-user kb-user-bubble" key={idx + 2} ref={messagesEndRef}>{msg}</div>
+          ))}
+        </div>
         <form className="kb-chat-input-bar" onSubmit={handleSend}>
           <input
             type="file"
