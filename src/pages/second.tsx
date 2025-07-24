@@ -116,12 +116,12 @@ export default function SecondPage() {
       <Header/>
       <main className="kb-chat-main">
         {/* Two empty cards for AI data */}
-        {/* <div className="kb-chat-bubble kb-chat-placeholder"> */}
-          {/* Placeholder for AI data 1 */}
-        {/* </div> */}
-        {/* <div className="kb-chat-bubble kb-chat-placeholder"> */}
-          {/* Placeholder for AI data 2 */}
-        {/* </div> */}
+        <div className="kb-chat-bubble kb-chat-placeholder">
+          Placeholder for AI data 1
+        </div>
+        <div className="kb-chat-bubble kb-chat-placeholder">
+          Placeholder for AI data 2
+        </div>
         {fileName && (
           <div className="kb-chat-bubble kb-chat-file">📎 {fileName}</div>
         )}

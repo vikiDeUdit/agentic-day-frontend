@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './first.scss';
-import Header from '../components/header';
+import Header from '../components/Header';
 
 const INDIAN_STATES = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -43,7 +43,7 @@ export default function FirstPage() {
         <form className="kb-form" onSubmit={handleSubmit}>
 
           {/* LANGUAGE DROPDOWN FIRST */}
-          <div className="kb-row" style={{ justifyContent: 'center' }}>
+          <div className="kb-row" style={{ justifyContent: 'flex-end' }}>
             <div className="kb-section">
               <label className="kb-label">LANGUAGE</label>
               <div className="kb-dropdown-container">
@@ -69,7 +69,7 @@ export default function FirstPage() {
           </div>
 
           {/* STATE DROPDOWN SECOND */}
-          <div className="kb-row">
+          <div className="kb-row" style={{ justifyContent: 'flex-start' }}>
             <div className="kb-section">
               <label className="kb-label">STATE</label>
               <div className="kb-dropdown-container">
@@ -95,7 +95,9 @@ export default function FirstPage() {
           </div>
 
           {/* SUBMIT BUTTON */}
-          <button className="kb-submit" type="submit" disabled={!state || !language}>Submit</button>
+          {(state && language) && (
+            <button className="kb-submit" type="submit" disabled={!state || !language}>Submit</button>
+          )}
           
           {/* SUCCESS MESSAGE */}
           {submitted && state && language && (
