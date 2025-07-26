@@ -2,6 +2,8 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import './second.scss';
 import Header from '../components/Header';
+import i18n from '../i18n';
+import { useTranslation } from 'react-i18next';
 
 type SpeechRecognitionType = typeof window.SpeechRecognition | typeof window.webkitSpeechRecognition;
 type RecognitionInstance = InstanceType<NonNullable<SpeechRecognitionType>> | null;
@@ -39,6 +41,7 @@ const LANGUAGE_TO_LOCALE: Record<string, string> = {
 
 export default function SecondPage() {
   const location = useLocation();
+  const { t } = useTranslation();
   const selectedLanguage = (location.state as any)?.language || 'Hindi';
   const recognitionLang = LANGUAGE_TO_LOCALE[selectedLanguage] || 'hi-IN';
 
@@ -57,6 +60,10 @@ export default function SecondPage() {
   }, [messages]);
   useEffect(() => {
     // Scroll to bottom when messages change
+    const savedLang = localStorage.getItem('appLanguage');
+    if (savedLang) {
+      i18n.changeLanguage(savedLang);
+    }
     setTimeout(() => {
       setMessages(['', '']);
     }, 1000);
@@ -148,7 +155,7 @@ export default function SecondPage() {
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
-            placeholder="Type your message..."
+            placeholder={t('instructions') + "..."}
             autoFocus
           />
           <button className="kb-chat-send" type="submit" disabled={input.trim() === '' && !fileName}>

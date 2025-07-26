@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './first.scss';
 import Header from '../components/Header';
+import { useTranslation } from 'react-i18next';
+import { lang_mapping } from '../utils/lang';
 
 const INDIAN_STATES = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -23,12 +25,17 @@ const INDIAN_LANGUAGES = [
 ];
 
 export default function FirstPage() {
+  const {t, i18n} = useTranslation();
   const [state, setState] = useState('');
   const [language, setLanguage] = useState('');
   const [showStateDropdown, setShowStateDropdown] = useState(false);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
+
+  const changeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +52,7 @@ export default function FirstPage() {
           {/* LANGUAGE DROPDOWN FIRST */}
           <div className="kb-row" style={{ justifyContent: 'flex-end' }}>
             <div className="kb-section">
-              <label className="kb-label">LANGUAGE</label>
+              <label className="kb-label">{t('language')}</label>
               <div className="kb-dropdown-container">
                 <div className="kb-dropdown-selected" onClick={() => setShowLangDropdown(v => !v)}>
                   {language || 'Select Language'}
@@ -57,7 +64,13 @@ export default function FirstPage() {
                       <div
                         key={l}
                         className="kb-dropdown-item"
-                        onClick={() => { setLanguage(l); setShowLangDropdown(false); }}
+                        onClick={() => { 
+                          setLanguage(l); 
+                          setShowLangDropdown(false);
+                          console.log(`Selected language: ${lang_mapping[l]}`);
+                          changeLanguage(lang_mapping[l]);
+                          localStorage.setItem('appLanguage', lang_mapping[l]);
+                        }}
                       >
                         {l}
                       </div>
@@ -71,7 +84,7 @@ export default function FirstPage() {
           {/* STATE DROPDOWN SECOND */}
           <div className="kb-row" style={{ justifyContent: 'flex-start' }}>
             <div className="kb-section">
-              <label className="kb-label">STATE</label>
+              <label className="kb-label">{t('state')}</label>
               <div className="kb-dropdown-container">
                 <div className="kb-dropdown-selected" onClick={() => setShowStateDropdown(v => !v)}>
                   {state || 'Select State'}

@@ -1,10 +1,20 @@
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import './Header.scss'
+import { useEffect } from 'react';
 
 const Header = () => {
+  const { t } = useTranslation();
+  useEffect(() => {
+    const savedLang = localStorage.getItem('appLanguage');
+      if (savedLang) {
+        i18n.changeLanguage(savedLang);
+      }
+  }, []);
   return (
     <>
         <header className="kb-header">
-            <span className="kb-title">KrishiBandhu</span>
+            <span className="kb-title">{t('title')}</span>
             <span className="kb-user-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="8" r="4"/>

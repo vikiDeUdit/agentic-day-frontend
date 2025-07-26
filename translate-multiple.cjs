@@ -120,12 +120,22 @@ if (!fs.existsSync(inputFile)) {
   console.log('📄 Creating sample translation.json...');
 
   const defaultTranslations = {
-    title: "Welcome",
+    title: "KrishiBandhu",
     subtitle: "This is a sample app",
     buttons: {
       login: "Login",
-      signup: "Sign Up"
-    }
+      signup: "Sign Up",
+      submit: "Submit",
+      cancel: "Cancel"
+    },
+    language: "Language",
+    welcome: "Welcome to KrishiBandhu",
+    state: "State",
+    select: "Select",
+    search: "Search",
+    loading: "Loading...",
+    error: "An error occurred",
+    instructions: "Type your query here",
   };
 
   const inputDir = path.dirname(inputFile);
