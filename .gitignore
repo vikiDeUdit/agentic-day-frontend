@@ -22,3 +22,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+tts-backend/text_to_speech.json
