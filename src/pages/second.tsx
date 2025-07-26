@@ -4,14 +4,17 @@ import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import volume from '../assets/volume.svg';
 import Header from '../components/Header';
+import file from '../assets/file.svg';
+import mic from '../assets/mic.svg';
 import i18n from '../i18n';
 
 type SpeechRecognitionType = typeof window.SpeechRecognition | typeof window.webkitSpeechRecognition;
 type RecognitionInstance = InstanceType<NonNullable<SpeechRecognitionType>> | null;
 
 interface msgListType {
-  role: 'user' | 'bot';
-  content: string;
+  role: 'user' | 'bot' | 'file';
+  content: string; 
+  image?: string; // URL or base64 string
 }
 
 const LANGUAGE_TO_LOCALE: Record<string, string> = {
@@ -86,16 +89,45 @@ export default function SecondPage() {
   const handleFileClick = () => {
     fileInputRef.current?.click();
   };
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files && e.target.files[0]) {
+  //     const file = e.target.files[0];
+  //     setFileName(file.name);
+
+  //     // NEW: Read image and set preview
+  //     if (file.type.startsWith('image/')) {
+  //       const reader = new FileReader();
+  //       reader.onload = (ev) => {
+  //         setFileImageUrl(ev.target?.result as string);
+  //       };
+  //       reader.readAsDataURL(file);
+  //     } else {
+  //       setFileImageUrl(null);
+  //     }
+  //   }
+  // };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+    const file = e.target.files?.[0];
+    if (file) {
       setFileName(file.name);
 
-      // NEW: Read image and set preview
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = (ev) => {
-          setFileImageUrl(ev.target?.result as string);
+          const imageUrl = ev.target?.result as string;
+
+          // Add image message to chat
+          const userImageMessage: msgListType = {
+            role: 'user',
+            content: '',         // no text
+            image: imageUrl,     // base64 string
+          };
+
+          setMessages(prev => [...(prev || []), userImageMessage]);
+
+          // Optionally, clear file name after use
+          setFileImageUrl(null);
+          setFileName(null);
         };
         reader.readAsDataURL(file);
       } else {
@@ -103,6 +135,7 @@ export default function SecondPage() {
       }
     }
   };
+
 
   // Mic (speech-to-text) handler
   const handleMicClick = () => {
@@ -129,15 +162,33 @@ export default function SecondPage() {
   };
 
   // Chat send handler
+  // const handleSend = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  //   if (input.trim() !== '') {
+  //     await setMessages(prev => [...(prev || []), { role: 'user', content: input }, { role: 'bot', content: botmsg || '' }]);
+  //     setInput('');
+  //   }
+  // };
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+
     if (input.trim() !== '') {
-      await setMessages(prev => [...(prev || []), { role: 'user', content: input }, { role: 'bot', content: botmsg || '' }]);
+      const userMsg: msgListType = {
+        role: 'user',
+        content: input.trim(),
+      };
+
+      const botMsg: msgListType = {
+        role: 'bot',
+        content: botmsg || '',
+      };
+
+      setMessages(prev => [...(prev || []), userMsg, botMsg]);
       setInput('');
     }
   };
-
   return (
     <div className="kb-root-two">
       <Header/>
@@ -149,7 +200,7 @@ export default function SecondPage() {
         {/* <div className="kb-chat-bubble kb-chat-placeholder">
           Placeholder for AI data 2
         </div> */}
-        {fileName && (
+        {/* {fileName && (
           <div className="kb-chat-bubble kb-chat-file kb-chat-file-right">
             {fileImageUrl && (
               <div className="kb-chat-image-container">
@@ -161,8 +212,8 @@ export default function SecondPage() {
               </div>
             )}
           </div>
-        )}
-        <div className='kb-chat-content'>
+        )} */}
+        {/* <div className='kb-chat-content'>
           {messages && messages.map((msg, idx) => {
             if(msg.role === 'user')
               return (
@@ -180,7 +231,29 @@ export default function SecondPage() {
                 </div>
               );
           })}
+        </div> */}
+        <div className='kb-chat-content'>
+          {/* Render messages */}
+          {messages && messages.map((msg, idx) => (
+            <div key={idx} ref={messagesEndRef} className={`kb-chat-bubble kb-chat-${msg.role}`}>
+              {/* Show text content if present */}
+              {msg.content && <p>{msg.content}</p>}
+
+              {/* Show image if present */}
+              {msg.image && (
+                <img src={msg.image} alt="chat-img" className="kb-chat-message-img" />
+              )}
+
+              {/* Volume icon for bot messages */}
+              {msg.role === 'bot' && !msg.image && (
+                <span>
+                  <img src={volume} className='kb-chat-img' />
+                </span>
+              )}
+            </div>
+          ))}
         </div>
+
         <form className="kb-chat-input-bar" onSubmit={handleSend}>
           <input
             type="file"
@@ -190,10 +263,11 @@ export default function SecondPage() {
             accept="image/*"
           />
           <span className="kb-chat-icon" onClick={handleFileClick} title="Attach file">
-            <svg width="24" height="24" fill="none" stroke="#5ca945" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="8" width="16" height="8" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <img src={file} alt="Attach" className='input-icons'/>
           </span>
           <span className={`kb-chat-icon${listening ? ' kb-mic-listening' : ''}`} onClick={handleMicClick} title="Speak">
-            <svg width="24" height="24" fill="none" stroke="#5ca945" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8"/><rect x="10" y="8" width="4" height="8" rx="2"/></svg>
+            <img src={mic} alt="Mic" className='input-icons'/>
+            {/* <svg width="24" height="24" fill="none" stroke="#5ca945" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8"/><rect x="10" y="8" width="4" height="8" rx="2"/></svg> */}
           </span>
           <input
             className="kb-chat-input"
