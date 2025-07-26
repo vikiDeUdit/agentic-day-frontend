@@ -1,12 +1,18 @@
+import './second.scss';
 import React, { useRef, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import './second.scss';
+import { useTranslation } from 'react-i18next';
+import volume from '../assets/volume.svg';
 import Header from '../components/Header';
 import i18n from '../i18n';
-import { useTranslation } from 'react-i18next';
 
 type SpeechRecognitionType = typeof window.SpeechRecognition | typeof window.webkitSpeechRecognition;
 type RecognitionInstance = InstanceType<NonNullable<SpeechRecognitionType>> | null;
+
+interface msgListType {
+  role: 'user' | 'bot';
+  content: string;
+}
 
 const LANGUAGE_TO_LOCALE: Record<string, string> = {
   Hindi: 'hi-IN',
@@ -46,28 +52,35 @@ export default function SecondPage() {
   const recognitionLang = LANGUAGE_TO_LOCALE[selectedLanguage] || 'hi-IN';
 
   // Start with two empty cards for AI data
-  const [messages, setMessages] = useState<string[]>(['', '']);
+  const [messages, setMessages] = useState<msgListType[]>();
   const [input, setInput] = useState('');
   const [fileName, setFileName] = useState<string | null>(null);
+  const [fileImageUrl, setFileImageUrl] = useState<string | null>(null); // NEW: image preview
   const [listening, setListening] = useState(false);
+  const [botmsg, setBotmsg] = useState<string>();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<RecognitionInstance>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  // Simulate backend fetch for AI data (replace with real API call)
   useEffect(() => {
-    // Simulate fetching AI data
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   useEffect(() => {
-    // Scroll to bottom when messages change
+  const initialize = async () => {
     const savedLang = localStorage.getItem('appLanguage');
+
+    const initialBotMessage = 'hey there! I am your AI assistant. how can I help you?';
+    setBotmsg(initialBotMessage);
+    setMessages([{ role: 'bot', content: initialBotMessage }]);
+    console.log(messages)
+
     if (savedLang) {
       i18n.changeLanguage(savedLang);
     }
-    setTimeout(() => {
-      setMessages(['', '']);
-    }, 1000);
-  }, []);
+
+  };
+
+  initialize();
+}, []);
 
   // File upload handler
   const handleFileClick = () => {
@@ -75,7 +88,19 @@ export default function SecondPage() {
   };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFileName(e.target.files[0].name);
+      const file = e.target.files[0];
+      setFileName(file.name);
+
+      // NEW: Read image and set preview
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          setFileImageUrl(ev.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setFileImageUrl(null);
+      }
     }
   };
 
@@ -104,38 +129,57 @@ export default function SecondPage() {
   };
 
   // Chat send handler
-  const handleSend = (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     if (input.trim() !== '') {
-      setMessages([...messages, input]);
+      await setMessages(prev => [...(prev || []), { role: 'user', content: input }, { role: 'bot', content: botmsg || '' }]);
       setInput('');
     }
   };
 
   return (
     <div className="kb-root-two">
-      {/* <header className="kb-header">
-        <span className="kb-title">KrishiBandhu</span>
-        <span className="kb-user-icon">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M16 16a4 4 0 0 0-8 0"/><rect x="2" y="2" width="20" height="20" rx="5" fill="#fff3"/></svg>
-        </span>
-      </header> */}
       <Header/>
       <main className="kb-chat-main">
         {/* Two empty cards for AI data */}
-        <div className="kb-chat-bubble kb-chat-placeholder">
+        {/* <div className="kb-chat-bubble kb-chat-placeholder">
           Placeholder for AI data 1
-        </div>
-        <div className="kb-chat-bubble kb-chat-placeholder">
+        </div> */}
+        {/* <div className="kb-chat-bubble kb-chat-placeholder">
           Placeholder for AI data 2
-        </div>
+        </div> */}
         {fileName && (
-          <div className="kb-chat-bubble kb-chat-file">📎 {fileName}</div>
+          <div className="kb-chat-bubble kb-chat-file kb-chat-file-right">
+            {fileImageUrl && (
+              <div className="kb-chat-image-container">
+                <img
+                  src={fileImageUrl}
+                  alt={fileName}
+                  style={{ maxWidth: '200px', borderRadius: '8px', boxShadow: '0 2px 8px #0002' }}
+                />
+              </div>
+            )}
+          </div>
         )}
         <div className='kb-chat-content'>
-          {messages.slice(2).map((msg, idx) => (
-            <div className="kb-chat-bubble kb-user kb-user-bubble" key={idx + 2} ref={messagesEndRef}>{msg}</div>
-          ))}
+          {messages && messages.map((msg, idx) => {
+            if(msg.role === 'user')
+              return (
+                <div key={idx} ref={messagesEndRef} className={`kb-chat-bubble kb-chat-${msg.role}`}>
+                  {msg.content}
+                </div>
+              );
+            else
+              return (
+                <div key={idx} ref={messagesEndRef} className={`kb-chat-bubble kb-chat-${msg.role}`}>
+                  {msg.content}
+                  <span>
+                    <img src={volume} className='kb-chat-img'/>
+                  </span>
+                </div>
+              );
+          })}
         </div>
         <form className="kb-chat-input-bar" onSubmit={handleSend}>
           <input
@@ -143,6 +187,7 @@ export default function SecondPage() {
             style={{ display: 'none' }}
             ref={fileInputRef}
             onChange={handleFileChange}
+            accept="image/*"
           />
           <span className="kb-chat-icon" onClick={handleFileClick} title="Attach file">
             <svg width="24" height="24" fill="none" stroke="#5ca945" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="8" width="16" height="8" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
