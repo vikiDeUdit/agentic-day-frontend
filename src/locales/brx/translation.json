@@ -1,0 +1,8 @@
+{
+  "title": "Welcome",
+  "subtitle": "This is a sample app",
+  "buttons": {
+    "login": "Login",
+    "signup": "Sign Up"
+  }
+}
