@@ -52,12 +52,12 @@ export default function SecondPage() {
   const recognitionLang = LANGUAGE_TO_LOCALE[selectedLanguage] || 'hi-IN';
 
   // Start with two empty cards for AI data
-  const [messages, setMessages] = useState<msgListType[]>();
+  const [messages, setMessages] = useState<msgListType[]>(); // <------
   const [input, setInput] = useState('');
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileImageUrl, setFileImageUrl] = useState<string | null>(null); // NEW: image preview
   const [listening, setListening] = useState(false);
-  const [botmsg, setBotmsg] = useState<string>();
+  const [botmsg, setBotmsg] = useState<string>(); // NEW: bot message state
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<RecognitionInstance>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -66,7 +66,7 @@ export default function SecondPage() {
   }, [messages]);
   useEffect(() => {
   const initialize = async () => {
-    const savedLang = localStorage.getItem('appLanguage');
+    const savedLang = localStorage.getItem('appLanguage'); // Retrieve saved language from localStorage
 
     const initialBotMessage = 'hey there! I am your AI assistant. how can I help you?';
     setBotmsg(initialBotMessage);

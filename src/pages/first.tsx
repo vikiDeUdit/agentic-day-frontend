@@ -69,7 +69,7 @@ export default function FirstPage() {
                           setShowLangDropdown(false);
                           console.log(`Selected language: ${lang_mapping[l]}`);
                           changeLanguage(lang_mapping[l]);
-                          localStorage.setItem('appLanguage', lang_mapping[l]);
+                          localStorage.setItem('appLanguage', lang_mapping[l]); // save to localStorage
                         }}
                       >
                         {l}

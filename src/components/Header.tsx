@@ -6,7 +6,8 @@ import { useEffect } from 'react';
 const Header = () => {
   const { t } = useTranslation();
   useEffect(() => {
-    const savedLang = localStorage.getItem('appLanguage');
+    const savedLang = localStorage.getItem('appLanguage'); // Retrieve saved language from localStorage
+    // If a language is saved, change the i18n language to it
       if (savedLang) {
         i18n.changeLanguage(savedLang);
       }
